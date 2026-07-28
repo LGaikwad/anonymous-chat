@@ -27,12 +27,16 @@ function App() {
   }, [])
 
   useEffect(() => {
-    const pathCode = window.location.pathname.match(/^\/room\/([A-Za-z0-9]+)$/)?.[1]
-    if (pathCode) {
-      joinRoom(pathCode)
-    }
-    return () => clientRef.current?.deactivate()
-  }, [])
+  const pathCode = window.location.pathname.match(/^\/room\/([A-Za-z0-9]+)$/)?.[1]
+
+  if (pathCode) {
+    void joinRoom(pathCode)
+  }
+
+  return () => {
+    void clientRef.current?.deactivate()
+  }
+}, [])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
