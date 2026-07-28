@@ -1,0 +1,43 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: anonymous-chat-postgres
+    environment:
+      POSTGRES_DB: anonymous_chat
+      POSTGRES_USER: chat
+      POSTGRES_PASSWORD: chat
+    ports:
+      - "5432:5432"
+    volumes:
+      - chat-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chat -d anonymous_chat"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    container_name: anonymous-chat-backend
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: anonymous_chat
+      DB_USERNAME: chat
+      DB_PASSWORD: chat
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    container_name: anonymous-chat-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+volumes:
+  chat-postgres-data:
